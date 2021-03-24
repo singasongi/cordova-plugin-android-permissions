@@ -116,7 +116,7 @@ public class Permissions extends CordovaPlugin {
                 Context context = this.cordova.getActivity().getApplicationContext();
                 Activity activity = this.cordova.getActivity();
                 PowerManager pm   = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
-                addProperty(returnObj, KEY_RESULT_PERMISSION, pm.isIgnoringBatteryOptimizations(activity.getPackageName());
+                addProperty(returnObj, KEY_RESULT_PERMISSION, pm.isIgnoringBatteryOptimizations(activity.getPackageName()));
             } else {
                 addProperty(returnObj, KEY_RESULT_PERMISSION, cordova.hasPermission(permission0));
             }
