@@ -112,15 +112,11 @@ public class Permissions extends CordovaPlugin {
             if ("android.permission.SYSTEM_ALERT_WINDOW".equals(permission0)) {
                 Context context = this.cordova.getActivity().getApplicationContext();
                 addProperty(returnObj, KEY_RESULT_PERMISSION, Settings.canDrawOverlays(context));
-            }
-            if ("android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS".equals(permission0)) {
+            }else if ("android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS".equals(permission0)) {
                 Context context = this.cordova.getActivity().getApplicationContext();
                 Activity activity = this.cordova.getActivity();
                 PowerManager pm   = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
-                if (pm.isIgnoringBatteryOptimizations(activity.getPackageName())){
-                    callbackContext.success(returnObj);
-                    return;
-                }
+                addProperty(returnObj, KEY_RESULT_PERMISSION, pm.isIgnoringBatteryOptimizations(activity.getPackageName());
             } else {
                 addProperty(returnObj, KEY_RESULT_PERMISSION, cordova.hasPermission(permission0));
             }
@@ -129,6 +125,7 @@ public class Permissions extends CordovaPlugin {
     }
 
     private void requestPermissionAction(CallbackContext callbackContext, JSONArray permissions) throws Exception {
+        String[] permissionArray = getPermissions(permissions);
         if (permissions == null || permissions.length() == 0) {
             JSONObject returnObj = new JSONObject();
             addProperty(returnObj, KEY_ERROR, ACTION_REQUEST_PERMISSION);
@@ -138,13 +135,25 @@ public class Permissions extends CordovaPlugin {
             JSONObject returnObj = new JSONObject();
             addProperty(returnObj, KEY_RESULT_PERMISSION, true);
             callbackContext.success(returnObj);
+        } else if ( permissionArray.length == 1 && "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS".equals(permissionArray[0])) {
+            Log.i(TAG, "Request permission REQUEST_IGNORE_BATTERY_OPTIMIZATIONS");
+            //hasAllPermissions(permissions)아래에서 하면 도달 못함 
+            Activity activity = this.cordova.getActivity();
+            PowerManager pm   = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
+            //if need trigger https://github.com/mauron85/cordova-plugin-background-geolocation/pull/594
+            if (pm.isIgnoringBatteryOptimizations(activity.getPackageName()))
+                return;
+
+            Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+            Uri.parse("package:" + activity.getPackageName()));
+            activity.startActivity(intent);
+            return;
         } else if (hasAllPermissions(permissions)) {
             JSONObject returnObj = new JSONObject();
             addProperty(returnObj, KEY_RESULT_PERMISSION, true);
             callbackContext.success(returnObj);
         } else {
             permissionsCallback = callbackContext;
-            String[] permissionArray = getPermissions(permissions);
             if (permissionArray.length == 1 && "android.permission.SYSTEM_ALERT_WINDOW".equals(permissionArray[0])) {
                 Log.i(TAG, "Request permission SYSTEM_ALERT_WINDOW");
 
@@ -162,20 +171,20 @@ public class Permissions extends CordovaPlugin {
                     return;
                 }
             }
-            if (permissionArray.length == 1 && "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS".equals(permissionArray[0])) {
-                Log.i(TAG, "Request permission REQUEST_IGNORE_BATTERY_OPTIMIZATIONS");
+            // if (permissionArray.length == 1 && "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS".equals(permissionArray[0])) {
+            //     Log.i(TAG, "Request permission REQUEST_IGNORE_BATTERY_OPTIMIZATIONS");
 
-                Activity activity = this.cordova.getActivity();
-                PowerManager pm   = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
-                //if need trigger https://github.com/mauron85/cordova-plugin-background-geolocation/pull/594
-                if (pm.isIgnoringBatteryOptimizations(activity.getPackageName()))
-                    return;
+            //     Activity activity = this.cordova.getActivity();
+            //     PowerManager pm   = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
+            //     //if need trigger https://github.com/mauron85/cordova-plugin-background-geolocation/pull/594
+            //     if (pm.isIgnoringBatteryOptimizations(activity.getPackageName()))
+            //         return;
 
-                Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-                        Uri.parse("package:" + activity.getPackageName()));
-                activity.startActivity(intent);
-                return;
-            }
+            //     Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+            //             Uri.parse("package:" + activity.getPackageName()));
+            //     activity.startActivity(intent);
+            //     return;
+            // }
             cordova.requestPermissions(this, REQUEST_CODE_ENABLE_PERMISSION, permissionArray);
         }
     }
