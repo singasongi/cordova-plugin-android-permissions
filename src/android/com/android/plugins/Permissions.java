@@ -14,6 +14,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.os.PowerManager;
+import static android.content.Context.POWER_SERVICE;
+
+
 /**
  * Created by JasonYang on 2016/3/11.
  */
@@ -108,6 +112,15 @@ public class Permissions extends CordovaPlugin {
             if ("android.permission.SYSTEM_ALERT_WINDOW".equals(permission0)) {
                 Context context = this.cordova.getActivity().getApplicationContext();
                 addProperty(returnObj, KEY_RESULT_PERMISSION, Settings.canDrawOverlays(context));
+            }
+            if ("android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS".equals(permission0)) {
+                Context context = this.cordova.getActivity().getApplicationContext();
+                Activity activity = this.cordova.getActivity();
+                PowerManager pm   = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
+                if (pm.isIgnoringBatteryOptimizations(activity.getPackageName())){
+                    callbackContext.success(returnObj);
+                    return;
+                }
             } else {
                 addProperty(returnObj, KEY_RESULT_PERMISSION, cordova.hasPermission(permission0));
             }
@@ -148,6 +161,20 @@ public class Permissions extends CordovaPlugin {
                     activity.startActivityForResult(intent, ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE);
                     return;
                 }
+            }
+            if (permissionArray.length == 1 && "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS".equals(permissionArray[0])) {
+                Log.i(TAG, "Request permission REQUEST_IGNORE_BATTERY_OPTIMIZATIONS");
+
+                Activity activity = this.cordova.getActivity();
+                PowerManager pm   = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
+                //if need trigger https://github.com/mauron85/cordova-plugin-background-geolocation/pull/594
+                if (pm.isIgnoringBatteryOptimizations(activity.getPackageName()))
+                    return;
+
+                Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                        Uri.parse("package:" + activity.getPackageName()));
+                activity.startActivity(intent);
+                return;
             }
             cordova.requestPermissions(this, REQUEST_CODE_ENABLE_PERMISSION, permissionArray);
         }
