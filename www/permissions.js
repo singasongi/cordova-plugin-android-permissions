@@ -114,6 +114,7 @@ function Permissions() {
     this.RECORD_AUDIO = 'android.permission.RECORD_AUDIO';
     this.REORDER_TASKS = 'android.permission.REORDER_TASKS';
     this.RESTART_PACKAGES = 'android.permission.RESTART_PACKAGES';
+    this.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS = 'android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS';
     this.SEND_RESPOND_VIA_MESSAGE = 'android.permission.SEND_RESPOND_VIA_MESSAGE';
     this.SEND_SMS = 'android.permission.SEND_SMS';
     this.SET_ACTIVITY_WATCHER = 'android.permission.SET_ACTIVITY_WATCHER';
@@ -156,7 +157,6 @@ function Permissions() {
     this.WRITE_SYNC_SETTINGS = 'android.permission.WRITE_SYNC_SETTINGS';
     this.WRITE_USER_DICTIONARY = 'android.permission.WRITE_USER_DICTIONARY';
     this.WRITE_VOICEMAIL = 'com.android.voicemail.permission.WRITE_VOICEMAIL';
-    this.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS = 'android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS';
 }
 
 function deprecated(name) {
